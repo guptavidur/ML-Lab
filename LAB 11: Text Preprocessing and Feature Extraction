@@ -1,0 +1,47 @@
+import nltk
+import string
+
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+text = "Natural Language Processing (NLP) is amazing! It allows machines to understand human language."
+
+print(text)
+
+text = text.lower()
+
+tokens = word_tokenize(text)
+
+tokens = [w for w in tokens if w not in string.punctuation]
+
+stop_words = set(stopwords.words('english'))
+tokens = [w for w in tokens if w not in stop_words]
+
+stemmer = PorterStemmer()
+stemmed = [stemmer.stem(w) for w in tokens]
+
+lemmatizer = WordNetLemmatizer()
+lemmatized = [lemmatizer.lemmatize(w) for w in tokens]
+
+processed = " ".join(lemmatized)
+
+docs = [text, processed]
+
+cv = CountVectorizer()
+bow = cv.fit_transform(docs)
+
+print(cv.get_feature_names_out())
+print(bow.toarray())
+
+tfidf = TfidfVectorizer()
+tf = tfidf.fit_transform(docs)
+
+print(tfidf.get_feature_names_out())
+print(tf.toarray())
