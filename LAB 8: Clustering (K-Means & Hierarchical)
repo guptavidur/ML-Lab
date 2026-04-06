@@ -1,0 +1,43 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+from scipy.cluster.hierarchy import dendrogram, linkage
+
+url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+
+columns = ["sepal_length","sepal_width","petal_length","petal_width","species"]
+data = pd.read_csv(url, header=None, names=columns)
+
+data = data.dropna()
+df = data.drop("species", axis=1)
+
+print(df.head())
+
+scaler = StandardScaler()
+X = scaler.fit_transform(df)
+
+kmeans = KMeans(n_clusters=3, n_init=10)
+k_labels = kmeans.fit_predict(X)
+
+print(silhouette_score(X, k_labels))
+
+hier = AgglomerativeClustering(n_clusters=3)
+h_labels = hier.fit_predict(X)
+
+print(silhouette_score(X, h_labels))
+
+linked = linkage(X, method='ward')
+dendrogram(linked)
+plt.show()
+
+plt.subplot(1,2,1)
+plt.scatter(X[:,0], X[:,1], c=k_labels)
+
+plt.subplot(1,2,2)
+plt.scatter(X[:,0], X[:,1], c=h_labels)
+
+plt.show()
