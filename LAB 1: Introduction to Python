@@ -1,0 +1,86 @@
+# Introduction to Python - Basic Concepts
+
+# 1. Variables and Data Types
+a = 10
+b = 3.5
+name = "Vidur"
+is_student = True
+
+print("Integer:", a)
+print("Float:", b)
+print("String:", name)
+print("Boolean:", is_student)
+
+
+# 2. Operators
+x = 5
+y = 2
+
+print("Addition:", x + y)
+print("Subtraction:", x - y)
+print("Multiplication:", x * y)
+print("Division:", x / y)
+print("Greater:", x > y)
+
+
+# 3. Conditional Statements
+num = 10
+
+if num % 2 == 0:
+    print("Even Number")
+else:
+    print("Odd Number")
+
+
+# 4. Loops
+
+# For loop
+for i in range(5):
+    print("For Loop:", i)
+
+# While loop
+i = 0
+while i < 5:
+    print("While Loop:", i)
+    i += 1
+
+
+# 5. Functions
+def add(a, b):
+    return a + b
+
+print("Sum:", add(3, 4))
+
+
+# 6. List Operations
+numbers = [1, 2, 3, 4]
+numbers.append(5)
+print("List:", numbers)
+
+
+# 7. NumPy Example
+import numpy as np
+
+arr = np.array([1, 2, 3])
+print("NumPy Array:", arr)
+
+
+# 8. Pandas Example
+import pandas as pd
+
+data = pd.DataFrame({
+    'A': [1, 2],
+    'B': [3, 4]
+})
+print("DataFrame:\n", data)
+
+
+# 9. Matplotlib Example
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3]
+y = [2, 4, 6]
+
+plt.plot(x, y)
+plt.title("Simple Plot")
+plt.show()
