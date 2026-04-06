@@ -1,0 +1,106 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Exp 1 - Decision Tree Classifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.preprocessing import LabelEncoder
+
+data = {
+    "Outlook": ["Sunny","Sunny","Overcast","Rain","Rain","Rain","Overcast","Sunny","Sunny","Rain","Sunny","Overcast","Overcast","Rain"],
+    "Temp": ["Hot","Hot","Hot","Mild","Cool","Cool","Cool","Mild","Cool","Mild","Mild","Mild","Hot","Mild"],
+    "Humidity": ["High","High","High","High","Normal","Normal","Normal","High","Normal","Normal","Normal","High","Normal","High"],
+    "Wind": ["Weak","Strong","Weak","Weak","Weak","Strong","Strong","Weak","Weak","Weak","Strong","Strong","Weak","Strong"],
+    "PlayTennis": ["No","No","Yes","Yes","Yes","No","Yes","No","Yes","Yes","Yes","Yes","Yes","No"]
+}
+
+df = pd.DataFrame(data)
+
+le_map = {}
+for col in df.columns:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    le_map[col] = le
+
+X = df.drop("PlayTennis", axis=1)
+y = df["PlayTennis"]
+
+model = DecisionTreeClassifier(criterion="entropy")
+model.fit(X, y)
+
+sample = pd.DataFrame({
+    "Outlook": [le_map["Outlook"].transform(["Sunny"])[0]],
+    "Temp": [le_map["Temp"].transform(["Cool"])[0]],
+    "Humidity": [le_map["Humidity"].transform(["High"])[0]],
+    "Wind": [le_map["Wind"].transform(["Strong"])[0]]
+})
+
+pred = model.predict(sample)
+print(le_map["PlayTennis"].inverse_transform(pred)[0])
+
+plot_tree(model, feature_names=X.columns, filled=True)
+plt.show()
+
+
+# Exp 2 - Decision Tree Regressor
+from sklearn.tree import DecisionTreeRegressor
+
+data = {
+    "Outlook": ["Sunny","Sunny","Overcast","Rain","Rain","Rain","Overcast","Sunny","Sunny","Rain","Sunny","Overcast","Overcast","Rain"],
+    "Temp": ["Hot","Hot","Hot","Mild","Cool","Cool","Cool","Mild","Cool","Mild","Mild","Mild","Hot","Mild"],
+    "Humidity": ["High","High","High","High","Normal","Normal","Normal","High","Normal","Normal","Normal","High","Normal","High"],
+    "Wind": ["Weak","Strong","Weak","Weak","Weak","Strong","Strong","Weak","Weak","Weak","Strong","Strong","Weak","Strong"],
+    "Golf": [25,30,46,45,52,23,43,35,38,46,48,52,44,30]
+}
+
+df = pd.DataFrame(data)
+
+for col in ["Outlook","Temp","Humidity","Wind"]:
+    df[col] = LabelEncoder().fit_transform(df[col])
+
+X = df[["Outlook","Temp","Humidity","Wind"]]
+y = df["Golf"]
+
+model = DecisionTreeRegressor()
+model.fit(X, y)
+
+sample = pd.DataFrame({
+    "Outlook": [0],
+    "Temp": [2],
+    "Humidity": [1],
+    "Wind": [0]
+})
+
+print(model.predict(sample)[0])
+
+plot_tree(model, feature_names=X.columns, filled=True)
+plt.show()
+
+
+# Exp 3 - Naive Bayes vs Decision Tree
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+nb = GaussianNB()
+nb.fit(X_train, y_train)
+pred_nb = nb.predict(X_test)
+
+print(accuracy_score(y_test, pred_nb))
+print(confusion_matrix(y_test, pred_nb))
+print(classification_report(y_test, pred_nb))
+
+dt = DecisionTreeClassifier(criterion="entropy")
+dt.fit(X_train, y_train)
+pred_dt = dt.predict(X_test)
+
+print(accuracy_score(y_test, pred_dt))
+print(confusion_matrix(y_test, pred_dt))
+print(classification_report(y_test, pred_dt))
