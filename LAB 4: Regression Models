@@ -1,0 +1,144 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Exp 1
+url = "https://raw.githubusercontent.com/Yashappin/Machine-Learning/master/TvMarketing.csv"
+data = pd.read_csv(url)
+
+print(data.head())
+print(data.info())
+print(data.describe())
+
+plt.scatter(data['TV'], data['Sales'])
+plt.xlabel("TV")
+plt.ylabel("Sales")
+plt.show()
+
+from sklearn.model_selection import train_test_split
+
+X = data[['TV']]
+y = data['Sales']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print(model.intercept_)
+print(model.coef_)
+
+plt.scatter(X_test, y_test)
+plt.plot(X_test, model.predict(X_test))
+plt.show()
+
+pred = model.predict(X_test)
+print(pd.DataFrame({'Actual': y_test, 'Predicted': pred}))
+
+from sklearn.metrics import mean_squared_error, r2_score
+
+rmse = np.sqrt(mean_squared_error(y_test, pred))
+r2 = r2_score(y_test, pred)
+
+print(rmse)
+print(r2)
+
+
+# Exp 2
+data = pd.read_csv("vehicle_co2_dataset.csv")
+
+print(data.head())
+print(data.info())
+print(data.describe())
+
+data = data[['engine_cc','vehicle_weight','co2_g_km']]
+data.columns = ['Volume','Weight','CO2']
+
+sns.heatmap(data.corr(), annot=True)
+plt.show()
+
+sns.boxplot(data=data[['Volume','Weight','CO2']])
+plt.show()
+
+sns.pairplot(data)
+plt.show()
+
+X = data[['Volume','Weight']]
+y = data['CO2']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print(model.intercept_)
+print(model.coef_)
+
+pred = model.predict(X_test)
+
+plt.plot(y_test.values)
+plt.plot(pred)
+plt.show()
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+mae = mean_absolute_error(y_test, pred)
+mse = mean_squared_error(y_test, pred)
+rmse = np.sqrt(mse)
+
+print(mae)
+print(mse)
+print(rmse)
+
+
+# Exp 3
+data = pd.read_csv("advertising.csv")
+
+print(data.head())
+print(data.info())
+
+data = data.drop(['Ad Topic Line','City','Country','Timestamp'], axis=1)
+
+print(data.isnull().sum())
+
+sns.heatmap(data.corr(), annot=True)
+plt.show()
+
+X = data.drop('Clicked on Ad', axis=1)
+y = data['Clicked on Ad']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+from sklearn.model_selection import cross_val_score
+
+scores = cross_val_score(model, X, y, cv=5)
+
+print(scores)
+print(scores.mean())
+
+from sklearn.metrics import classification_report, confusion_matrix
+
+pred = model.predict(X_test)
+print(classification_report(y_test, pred))
+
+sns.heatmap(confusion_matrix(y_test, pred), annot=True, fmt='d')
+plt.show()
+
+from sklearn.metrics import RocCurveDisplay, PrecisionRecallDisplay
+
+RocCurveDisplay.from_estimator(model, X_test, y_test)
+plt.show()
+
+PrecisionRecallDisplay.from_estimator(model, X_test, y_test)
+plt.show()
+
+comparison = pd.DataFrame({'Actual': y_test, 'Predicted': pred})
+print(comparison.head(20))
