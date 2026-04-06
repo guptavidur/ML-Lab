@@ -1,0 +1,84 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('housing.csv')
+
+# Exp 1
+print(df.isnull().sum())
+
+# Exp 2
+rows_before = df.shape[0]
+df_drop = df.dropna()
+rows_after = df_drop.shape[0]
+print("Rows removed:", rows_before - rows_after)
+
+# Exp 3
+df_fill = df.copy()
+
+num_cols = df_fill.select_dtypes(include=['int64', 'float64']).columns
+cat_cols = df_fill.select_dtypes(include=['object']).columns
+
+for col in num_cols:
+    df_fill[col].fillna(df_fill[col].mean(), inplace=True)
+
+for col in cat_cols:
+    df_fill[col].fillna("Unknown", inplace=True)
+
+print(df_fill.head())
+
+# Exp 4
+if 'price' in df_fill.columns:
+    df_fill['price'] = df_fill['price'].astype(float)
+
+if 'area' in df_fill.columns:
+    df_fill['area'] = df_fill['area'].astype(int)
+
+print(df_fill.dtypes)
+
+# Exp 5
+df_renamed = df.rename(columns={
+    'RM': 'Avg_Rooms',
+    'LSTAT': 'Lower_Status_Pct',
+    'PTRATIO': 'Pupil_Teacher_Ratio',
+    'MEDV': 'Median_House_Value'
+})
+
+print(df_renamed.head())
+
+# Exp 6
+df_clean = df.replace({
+    'RM': {0: np.nan},
+    'LSTAT': {0: np.nan},
+    'PTRATIO': {0: np.nan},
+    'MEDV': {0: np.nan}
+})
+
+df_clean[df_clean < 0] = np.nan
+df_clean = df_clean.fillna(df_clean.median())
+
+print(df_clean.head())
+
+# Exp 7
+plt.plot(df.index, df['MEDV'])
+plt.xlabel("Index")
+plt.ylabel("MEDV")
+plt.show()
+
+# Exp 8
+plt.scatter(df['RM'], df['MEDV'])
+plt.xlabel("RM")
+plt.ylabel("MEDV")
+plt.show()
+
+# Exp 9
+plt.hist(df['MEDV'], bins=20)
+plt.show()
+
+print(df['MEDV'].skew())
+
+# Exp 10
+df.boxplot(column=['RM', 'LSTAT', 'PTRATIO', 'MEDV'])
+plt.show()
+
+print(df.describe())
