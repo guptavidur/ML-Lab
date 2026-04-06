@@ -1,0 +1,63 @@
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.ensemble import BaggingClassifier, AdaBoostClassifier, GradientBoostingClassifier, StackingClassifier
+
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+columns = ['id', 'diagnosis'] + [f'feature_{i}' for i in range(30)]
+df = pd.read_csv('wdbc.data', names=columns)
+
+df = df.drop('id', axis=1)
+df['diagnosis'] = df['diagnosis'].map({'M':1, 'B':0})
+
+X = df.drop('diagnosis', axis=1)
+y = df['diagnosis']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+bagging = BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=100)
+bagging.fit(X_train, y_train)
+pred_bag = bagging.predict(X_test)
+
+adaboost = AdaBoostClassifier(estimator=DecisionTreeClassifier(max_depth=1), n_estimators=100, learning_rate=0.5)
+adaboost.fit(X_train, y_train)
+pred_ada = adaboost.predict(X_test)
+
+gboost = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1)
+gboost.fit(X_train, y_train)
+pred_gb = gboost.predict(X_test)
+
+base = [
+    ('dt', DecisionTreeClassifier()),
+    ('knn', KNeighborsClassifier()),
+    ('lr', LogisticRegression(max_iter=1000))
+]
+
+stack = StackingClassifier(estimators=base, final_estimator=LogisticRegression())
+stack.fit(X_train, y_train)
+pred_stack = stack.predict(X_test)
+
+models = {
+    "Bagging": pred_bag,
+    "AdaBoost": pred_ada,
+    "GradientBoosting": pred_gb,
+    "Stacking": pred_stack
+}
+
+for name, pred in models.items():
+    print(name)
+    print(accuracy_score(y_test, pred))
+    print(confusion_matrix(y_test, pred))
+    print(classification_report(y_test, pred))
